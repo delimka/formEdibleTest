@@ -1,0 +1,275 @@
+.outer-container {
+  font-family: sans-serif;
+  text-align: center;
+}
+.flex-column{
+display: flex;
+flex-direction: column;
+ gap: 15px;
+ margin-top: 4rem;
+}
+
+.group-space{
+  justify-content: space-evenly;
+  flex: 1;
+}
+.error {
+  color: red;
+}
+.form-group {
+  display: flex;
+  flex-direction: column; 
+  flex: 1;
+  gap:15px;
+}
+
+.form-group input {
+  display: flex;
+  flex-direction: column; 
+  flex: 1;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center; 
+  justify-content: space-between; 
+}
+.error-input {
+  border-color: red;
+}
+.error::before {
+  content: '⛔️';
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: white;
+  overflow: hidden;
+  overflow-y:visible
+
+}
+h1{
+  text-align: center;
+}
+
+.outer-container {
+  box-shadow: 0 10px 10px #95a5a666;
+  background: #ecf0f1;
+  border: 2px solid #bdc3c7;
+  border-radius: 4px;
+  font-family: sans-serif;
+  text-align: center;
+  width: fit-content;
+  max-width: 500px;
+  padding: 20px;
+  margin: 20px auto;
+}
+
+.App::before {
+  content: '👋';
+  font-size: 40px;
+}
+
+span{
+    text-align: left;
+  
+}
+.form-row{
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  gap: 15px;
+}
+.form-column{
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 15px;
+
+}
+
+label {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 20px;
+  span{
+   text-align: start;
+  }
+}
+
+input {
+  padding: 10px;
+  appearance: none;
+  border: 1px solid #34495e;
+  border-radius: 2px;
+  font-size: 14px;
+  transition: all 0.1s ease-out;
+}
+
+input:hover,
+input:focus {
+  transform: scale(1.05);
+}
+
+input[aria-invalid='true'] {
+  border-color: #e74c3c;
+}
+
+input[aria-invalid='true']:hover,
+input[aria-invalid='true']:focus {
+  border-color: #c0392b;
+}
+
+button {
+  appearance: none;
+  background: #34495e;
+  border: none;
+  border-radius: 2px;
+  color: #ecf0f1;
+  padding: 10px 20px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.disabled {
+  background: #7f8388;
+}
+.disabled:hover {
+  background: #7f8388;
+}
+/* .disabled:hover{
+  background: #7f8388;
+} */
+
+button:focus,
+button:hover {
+  background: #2c3e50;
+  cursor: pointer;
+}
+
+.error {
+  color: red;
+text-align: left;
+margin-top: 5px;
+}
+
+.error::before {
+  content: '⛔️';
+}
+
+.radio-group{
+  padding-right:5%;
+}
+
+.radio-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly; 
+  gap: 20px; 
+}
+
+.radio-input {
+  opacity: 0;
+  position: absolute;
+}
+
+.radio-label {
+  position: relative;
+  padding-left: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.radio-label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #34495e;
+  background-color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.row{
+  flex-direction: row;
+}
+
+
+.radio-input:checked + .radio-label::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #34495e;
+  transition: background-color 0.3s ease;
+}
+
+
+.text-right{
+  text-align: right;
+}
+
+@media (max-width: 360px) {
+  label {
+    flex-direction: column;
+  }
+  .error{
+    text-align: center;
+  }
+
+
+  .text-right{
+    text-align: center;
+  }
+
+  .radio-group{
+    flex-direction: column;
+  }
+
+  
+}
+
+.checkbox-wrapper{
+display: flex;
+align-items: center;
+gap: 15px;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  gap: 50px;
+}
+
+nav ul li {
+  flex-grow: 1;
+}
+
+nav a {
+  display: block;
+  text-align: center;
+  padding: 20px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.2s ease-in-out;
+  font-size: 30px;
+}
+
+nav a:hover {
+  background-color: #0056b3;
+}
