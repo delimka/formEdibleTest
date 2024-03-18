@@ -1,6 +1,6 @@
 
 
-# FormEdible Showcase Application with same examples using Zod and React-hook-form
+# FormEdible Showcase Application with examples using Zod and React-hook-form
 
 ## Overview
 
