@@ -6,6 +6,7 @@
 
 This application demonstrates the power and simplicity of FormEdible, a library designed for efficient form management and validation in React. Featuring side-by-side comparisons, it showcases three forms created with FormEdible, Zod, and react-hook-form, against three equivalent forms implemented directly with Zod and react-hook-form. This approach highlights the benefits and ease of use provided by FormEdible.
 
+Live preview: https://formedible-react-hook-form-zod.web.app/formedible
 ## Getting Started
 
 To explore the application, clone the repository and install the dependencies:
