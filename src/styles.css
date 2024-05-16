@@ -140,9 +140,6 @@ button {
 .disabled:hover {
   background: #7f8388;
 }
-/* .disabled:hover{
-  background: #7f8388;
-} */
 
 button:focus,
 button:hover {
@@ -218,6 +215,29 @@ margin-top: 5px;
 
 .text-right{
   text-align: right;
+}
+
+@media (max-width: 480px) {
+  .form-row{
+    flex-direction: column;
+    
+  }
+
+  input{
+    flex:1;
+  }
+
+  nav{
+    ul{
+      li{
+        a{
+          font-size: 18px;
+
+        }
+      }
+    }
+  }
+  
 }
 
 @media (max-width: 360px) {

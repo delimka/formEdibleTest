@@ -1,29 +1,11 @@
-import { useState } from "react";
-import { useFormedible } from "../../useFormedible";
+import { useFormedible } from "@delimka/formedible";
 import { RegistrationFieldConfigs } from "./RegistrationConfigs";
-import { ErrorType } from "../../types";
-
-
-const onValidateStart = () => console.log("Validation started");
-const onValidateError = (errors: ErrorType) =>
-  console.log("Validation errors", errors);
 
 export const RegistrationForm = () => {
-
-  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-
-  const onValidateSuccess = () => {
-    console.log("Validation succeeded");
-    setIsFormSubmitted(true); 
-  };
-  const { state, dispatch, validateSingleField, validateAllFields } = useFormedible({
-    configs: RegistrationFieldConfigs, 
-    callbacks: {
-      onValidateStart,
-      onValidateSuccess,
-      onValidateError,
-    },
-  });
+  const { state, dispatch, validateSingleField, validateAllFields } =
+    useFormedible({
+      configs: RegistrationFieldConfigs,
+    });
 
   const handleChange = (
     e:
@@ -55,22 +37,6 @@ export const RegistrationForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex-column">
-       {isFormSubmitted && (
-          <div
-            style={{
-              background: "green",
-              color: "white",
-              padding: "10px",
-              marginBottom: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span style={{ marginRight: "10px" }}>✓</span> Form submitted
-            successfully!
-          </div>
-        )}
       <div className="form-row">
         <div className="form-group">
           <div className="input-wrapper">
@@ -265,7 +231,56 @@ export const RegistrationForm = () => {
           <div className="error">{state.errors.subscriptionPlan}</div>
         )}
       </div>
-      <button type="submit">Register</button>
+      <button type="submit">Submit</button>
     </form>
   );
 };
+// const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+// const [isFieldValidating, setIsFieldValidating] = useState(false);
+// const [isError, setIsError] = useState(false);
+
+// const onValidateSuccess = () => {
+//   console.log("Validation succeeded");
+//   setIsError(false);
+//   setIsFormSubmitted(true);
+// };
+// const onValidateError = () => {
+//   setIsFormSubmitted(false);
+//   setIsError(true);
+// }
+
+// {isFormSubmitted && !isError ?  (
+//   <div
+//     style={{
+//       background: "green",
+//       color: "white",
+//       padding: "10px",
+//       marginBottom: "10px",
+//       display: "flex",
+//       alignItems: "center",
+//       justifyContent: "center",
+//     }}
+
+//   >
+//     <span style={{ marginRight: "10px" }}>✓</span> Form submitted
+//     successfully!
+//   </div>
+// ) : null}
+// {isError && (
+//   <div
+//     style={{
+//       background: "red",
+//       color: "white",
+//       padding: "10px",
+//       marginBottom: "10px",
+//       display: "flex",
+//       alignItems: "center",
+//       justifyContent: "center",
+//     }}
+
+//   >
+//     <span style={{ marginRight: "10px" }}>✓</span> Please, check your data.
+//   </div>
+// )}
+
+// <button type="submit" disabled={isFieldValidating}>

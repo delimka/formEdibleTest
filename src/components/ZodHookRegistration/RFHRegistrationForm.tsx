@@ -47,7 +47,6 @@ const schema: ZodType<FormData> = z
   });
 
 const checkEmailExists = async (email: string) => {
-  // Simulate API call delay
   await new Promise((resolve) => setTimeout(resolve, 1000));
   // Example: return true if email exists, false otherwise
   const existingEmails = ["existing@example.com"]; // Example existing emails

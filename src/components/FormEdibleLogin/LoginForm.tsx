@@ -1,63 +1,39 @@
-//LoginForm.tsx
 import React from "react";
-import { useFormedible } from "../../useFormedible";
+import { useFormedible } from "@delimka/formedible";
 import { LoginFieldConfigs } from "./LoginConfig";
 
 export const LoginForm = () => {
-  const { state, dispatch, validateSingleField, validateAllFields} =
-    useFormedible({
-      configs: LoginFieldConfigs,
-    });
+  const { state, dispatch, trigger, validateSingleField } = useFormedible({
+    configs: LoginFieldConfigs,
+  });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const errors = validateAllFields();
-
-    const hasErrors = Object.values(errors).some((error) => error !== null);
-    if (!hasErrors) {
+    const isValid = await trigger();
+    if (isValid) {
       console.log("Form submitted:", state.values);
     } else {
       console.log("Form contains errors");
     }
   };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    e.stopPropagation();
+    const { name, type, checked, value } = e.target;
+    const isCheckbox = type === "checkbox";
     dispatch({
       type: "CHANGE",
-      payload: { field: name, value: value },
+      payload: { field: name, value: isCheckbox ? checked.toString() : value },
     });
-    validateSingleField(name); 
+    if (state.errors[name]) {
+      validateSingleField(name);
+    }
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     const field = e.target.name;
-    dispatch({ type: "BLUR", payload: { field } });
-    validateSingleField(field);
+    trigger([field]);
   };
-  // const handleAddPhoneField = () => {
-  //   const newFieldName = "phone";
-  //   addField({
-  //     name: newFieldName,
-  //     isRequired: true,
-  //     isMinLength: 4,
-  //     messages: {
-  //       isRequired: "This field is required",
-  //       isMinLength: "sdqwdqwd",
-  //     },
-  //     initialValue: "",
-  //   });
-  //   setDynamicFields((prevFields) => ({ ...prevFields, [newFieldName]: true }));
-  // };
-
-  // const handleRemovePhoneField = () => {
-  //   const fieldName = "phone";
-  //   removeField(fieldName);
-  //   setDynamicFields((prevFields) => {
-  //     const newFields = { ...prevFields };
-  //     delete newFields[fieldName];
-  //     return newFields;
-  //   });
-  // };
 
   return (
     <form onSubmit={handleSubmit} className="flex-column">
@@ -66,7 +42,6 @@ export const LoginForm = () => {
           <label>
             <span className="label-text">Email or Username</span>
             <input
-              id="username"
               name="username"
               value={state.values.username}
               onChange={handleChange}
@@ -103,12 +78,52 @@ export const LoginForm = () => {
               type="checkbox"
               name="rememberPassword"
               onChange={handleChange}
+              checked={!!state.values.rememberPassword}
             />
           </div>
           <span className="label-text pl-20">Remember password</span>
         </div>
       </div>
-      {/* <div>
+
+      <button type="submit">Submit my form</button>
+      <div className="form-group text-right">
+        <a href="/forgot-password">Forgot Password?</a>
+      </div>
+    </form>
+  );
+};
+// const handleBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+//   const field = e.target.name;
+//   dispatch({ type: "BLUR", payload: { field } });
+//   await validateSingleField(field);
+// };
+
+// const handleAddPhoneField = () => {
+//   const newFieldName = "phone";
+//   addField({
+//     name: newFieldName,
+//     isRequired: true,
+//     isMinLength: 4,
+//     messages: {
+//       isRequired: "This field is required",
+//       isMinLength: "sdqwdqwd",
+//     },
+//     initialValue: "",
+//   });
+//   setDynamicFields((prevFields) => ({ ...prevFields, [newFieldName]: true }));
+// };
+
+// const handleRemovePhoneField = () => {
+//   const fieldName = "phone";
+//   removeField(fieldName);
+//   setDynamicFields((prevFields) => {
+//     const newFields = { ...prevFields };
+//     delete newFields[fieldName];
+//     return newFields;
+//   });
+// };
+{
+  /* <div>
         {dynamicFields["phone"] && (
           <div className="form-group">
             <label>
@@ -135,12 +150,5 @@ export const LoginForm = () => {
             Add Phone Field
           </button>
         )}
-      </div> */}
-
-      <button type="submit">Submit my form</button>
-      <div className="form-group text-right">
-        <a href="/forgot-password">Forgot Password?</a>
-      </div>
-    </form>
-  );
-};
+      </div> */
+}

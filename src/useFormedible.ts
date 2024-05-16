@@ -1,366 +1,423 @@
-import { useReducer, useEffect, useCallback } from "react";
-import {
-  FieldConfig,
-  FormState,
-  Action,
-  NamedFieldConfig,
-  UseValidationParams,
-  FieldGroupConfig
-} from "./types";
+// import { useReducer, useEffect, useCallback } from "react";
+// import {
+//   FieldConfig,
+//   FormState,
+//   Action,
+//   NamedFieldConfig,
+//   UseValidationParams,
+//   FieldGroupConfig,
+// } from "./types";
 
-function validateField(
-  value: string,
-  config: FieldConfig,
-  allValues: Record<string, string>
-): string | null {
-  if (!config) {
-    console.error("Config is undefined for the field.");
-    return "Configuration error";
-  }
+// function validateField(
+//   value: string,
+//   config: FieldConfig,
+//   allValues: Record<string, string | boolean>
+// ): string | null {
+//   if (!config) {
+//     console.error("Config is undefined for the field.");
+//     return "Configuration error";
+//   }
 
-  if (config.isRequired && !value) {
-    return config.messages?.isRequired || "This field is required";
-  }
-  if (config.isLogicValid && !config.isLogicValid(allValues)) {
-    return config.messages?.isLogicValid || "Logic validation failed";
-  }
+//   if (config.isRequired && !value) {
+//     return config.messages?.isRequired || "This field is required";
+//   }
+//   if (config.isLogicValid && !config.isLogicValid(allValues)) {
+//     return config.messages?.isLogicValid || "Logic validation failed";
+//   }
 
-  if (config.isMinLength && value.length < config.isMinLength) {
-    return (
-      config.messages?.isMinLength || `Minimum length is ${config.isMinLength}`
-    );
-  }
+//   if (config.isMinLength && value.length < config.isMinLength) {
+//     return (
+//       config.messages?.isMinLength || `Minimum length is ${config.isMinLength}`
+//     );
+//   }
 
-  if (config.isMaxLength && value.length > config.isMaxLength) {
-    return (
-      config.messages?.isMaxLength || `Maximum length is ${config.isMaxLength}`
-    );
-  }
+//   if (config.isMaxLength && value.length > config.isMaxLength) {
+//     return (
+//       config.messages?.isMaxLength || `Maximum length is ${config.isMaxLength}`
+//     );
+//   }
 
-  if (config.isEqualTo && allValues[config.isEqualTo] !== value) {
-    return (
-      config.messages?.isEqualTo ||
-      `This field must match with ${config.isEqualTo}`
-    );
-  }
+//   if (config.isEqualTo && allValues[config.isEqualTo] !== value) {
+//     return (
+//       config.messages?.isEqualTo ||
+//       `This field must match with ${config.isEqualTo}`
+//     );
+//   }
 
-  if (config.isNotEqual && allValues[config.isNotEqual] === value) {
-    return (
-      config.messages?.isNotEqual ||
-      `This field must not match with ${config.isNotEqual}`
-    );
-  }
+//   if (config.isNotEqual && allValues[config.isNotEqual] === value) {
+//     return (
+//       config.messages?.isNotEqual ||
+//       `This field must not match with ${config.isNotEqual}`
+//     );
+//   }
 
-  if (
-    config.isEmail &&
-    !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value as string)
-  ) {
-    return config.messages?.isEmail || "Invalid email format";
-  }
+//   if (
+//     config.isEmail &&
+//     !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value as string)
+//   ) {
+//     return config.messages?.isEmail || "Invalid email format";
+//   }
 
-  if (config.isPhone && !/^\+\d{1,3}[0-9]{5,12}$/.test(value as string)) {
-    return (
-      config.messages?.isPhone ||
-      "Invalid phone number format, expected +(xxx) xxxxxx "
-    );
-  }
+//   if (config.isPhone && !/^\+\d{1,3}[0-9]{5,12}$/.test(value as string)) {
+//     return (
+//       config.messages?.isPhone ||
+//       "Invalid phone number format, expected +(xxx) xxxxxx "
+//     );
+//   }
 
-  if (config.isDate && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return (
-      config.messages?.isDate || "Invalid date format, expected YYYY-MM-DD"
-    );
-  }
+//   if (config.isDate && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+//     return (
+//       config.messages?.isDate || "Invalid date format, expected YYYY-MM-DD"
+//     );
+//   }
 
-  if (config.isUrl && !/^(https?:\/\/)[^\s$.?#].[^\s]*$/.test(value)) {
-    return config.messages?.isUrl || "Invalid URL format";
-  }
+//   if (config.isUrl && !/^(https?:\/\/)[^\s$.?#].[^\s]*$/.test(value)) {
+//     return config.messages?.isUrl || "Invalid URL format";
+//   }
 
-  if (config.isFile && !value) {
-    return config.messages?.isFile || "File is required";
-  }
+//   if (config.isFile && !value) {
+//     return config.messages?.isFile || "File is required";
+//   }
 
-  let errorMessage: string | null = null;
+//   let errorMessage: string | null = null;
 
-  if (config.customValidate) {
-    const customError = config.customValidate(value, allValues);
-    if (customError) {
-      return config.messages?.customValidate || customError;
-    }
-  }
+//   if (config.customValidate) {
+//     const customError = config.customValidate(value, allValues);
+//     if (customError) {
+//       return config.messages?.customValidate || customError;
+//     }
+//   }
 
-  const conditionalOrCustomError = checkConditionalAndCustomValidations(
-    value,
-    config,
-    allValues
-  );
-  if (conditionalOrCustomError) {
-    errorMessage = conditionalOrCustomError;
-  }
+//   const conditionalOrCustomError = checkConditionalAndCustomValidations(
+//     value,
+//     config,
+//     allValues
+//   );
+//   if (conditionalOrCustomError) {
+//     errorMessage = conditionalOrCustomError;
+//   }
 
-  return errorMessage;
-}
+//   return errorMessage;
+// }
 
-function checkConditionalAndCustomValidations(
-  value: string,
-  config: FieldConfig,
-  allValues: Record<string, string>
-) {
-  switch (config.condition) {
-    case "greaterThan":
-      if (
-        !(
-          parseFloat(value) >
-          parseFloat(allValues[config.conditionValue as string])
-        )
-      ) {
-        return (
-          config.conditionMessage ||
-          `Value must be greater than ${config.conditionValue}`
-        );
-      }
-      break;
-    case "between": {
-      const [min, max] = config.conditionValue as [number, number];
-      if (!(parseFloat(value) >= min && parseFloat(value) <= max)) {
-        return (
-          config.conditionMessage || `Value must be between ${min} and ${max}`
-        );
-      }
-      break;
-    }
-    case "lessThan":
-      if (
-        !(
-          parseFloat(value) <
-          parseFloat(allValues[config.conditionValue as string])
-        )
-      ) {
-        return (
-          config.conditionMessage ||
-          `Value must be less than ${config.conditionValue}`
-        );
-      }
-      break;
-    case "matches":
-      if (
-        config.conditionValue instanceof RegExp &&
-        !config.conditionValue.test(value)
-      ) {
-        return (
-          config.conditionMessage || `Value does not match required pattern`
-        );
-      }
-      break;
-    case "custom":
-      if (
-        typeof config.conditionValue === "function" &&
-        !config.conditionValue(value, allValues)
-      ) {
-        return config.conditionMessage || `Custom validation failed`;
-      }
-      break;
-  }
-}
+// function checkConditionalAndCustomValidations(
+//   value: string,
+//   config: FieldConfig,
+//   allValues: Record<string, string | boolean>
+// ) {
+//   const conditionValue = allValues[config.conditionValue as string];
 
-function validateGroup(groupConfig: FieldGroupConfig, allValues: Record<string, any>): string | null {
-  return groupConfig.validate(allValues);
-}
+//   switch (config.condition) {
+//     case "greaterThan":
+//       if (typeof conditionValue !== "string") {
+//         return `Invalid comparison between string and non-string value for ${config.conditionValue}`;
+//       }
+//       if (!(parseFloat(value) > parseFloat(conditionValue))) {
+//         return (
+//           config.conditionMessage ||
+//           `Value must be greater than ${config.conditionValue}`
+//         );
+//       }
+//       break;
+//     case "between": {
+//       const [min, max] = config.conditionValue as [number, number];
+//       if (!(parseFloat(value) >= min && parseFloat(value) <= max)) {
+//         return (
+//           config.conditionMessage || `Value must be between ${min} and ${max}`
+//         );
+//       }
+//       break;
+//     }
+//     case "lessThan":
+//       if (typeof conditionValue !== "string") {
+//         return `Invalid comparison between string and non-string value for ${config.conditionValue}`;
+//       }
+//       if (!(parseFloat(value) < parseFloat(conditionValue))) {
+//         return (
+//           config.conditionMessage ||
+//           `Value must be less than ${config.conditionValue}`
+//         );
+//       }
+//       break;
+//     case "matches":
+//       if (
+//         config.conditionValue instanceof RegExp &&
+//         !config.conditionValue.test(value)
+//       ) {
+//         return (
+//           config.conditionMessage || `Value does not match required pattern`
+//         );
+//       }
+//       break;
+//     case "custom":
+//       if (
+//         typeof config.conditionValue === "function" &&
+//         !config.conditionValue(value, allValues)
+//       ) {
+//         return config.conditionMessage || `Custom validation failed`;
+//       }
+//       break;
+//   }
+// }
 
-function validateFields(
-  values: Record<string, string>,
-  configs: Record<string, FieldConfig>,
-  groups?: Record<string, FieldGroupConfig>
-): Record<string, string | null> {
-  const errors: Record<string, string | null> = {};
+// function validateGroup(
+//   groupConfig: FieldGroupConfig,
+//   allValues: Record<string, any>
+// ): string | null {
+//   return groupConfig.validate(allValues);
+// }
 
-  Object.keys(values).forEach((field) => {
-    console.log(`Validating: ${field}`);
-    const value = values[field] ?? "";
-    const config = configs[field];
-    if (!config) {
-      console.error(`No config found for field: ${field}`);
-      errors[field] = "Configuration error";
-      return;
-    }
-    const error = validateField(value, config, values);
-    errors[field] = error;
-  });
+// function validateFields(
+//   values: Record<string, string | boolean>,
+//   configs: Record<string, FieldConfig>,
+//   groups?: Record<string, FieldGroupConfig>
+// ): Record<string, string | null> {
+//   const errors: Record<string, string | null> = {};
 
-  Object.keys(groups || {}).forEach((groupName) => {
-    groups = groups || {}; 
-    const groupConfig = groups[groupName];
-    const groupError = validateGroup(groupConfig, values);
-    if (groupError) {
-      groupConfig.fields.forEach((fieldName) => {
-        errors[fieldName] = errors[fieldName] || groupError;
-      });
-    }
-  });
+//   Object.keys(values).forEach((field) => {
+//     console.log(`Validating: ${field}`);
+//     const value = values[field] ?? "";
+//     const config = configs[field];
+//     if (!config) {
+//       console.error(`No config found for field: ${field}`);
+//       errors[field] = "Configuration error";
+//       return;
+//     }
+//     if (typeof value === "string") {
+//       const error = validateField(value, config, values);
+//       errors[field] = error;
+//     }
+//   });
 
+//   Object.keys(groups || {}).forEach((groupName) => {
+//     groups = groups || {};
+//     const groupConfig = groups[groupName];
+//     const groupError = validateGroup(groupConfig, values);
+//     if (groupError) {
+//       groupConfig.fields.forEach((fieldName) => {
+//         errors[fieldName] = errors[fieldName] || groupError;
+//       });
+//     }
+//   });
 
-  return errors;
-}
+//   return errors;
+// }
 
-function formReducer(state: FormState, action: Action): FormState {
-  switch (action.type) {
-    case "CHANGE":
-      return {
-        ...state,
-        values: {
-          ...state.values,
-          [action.payload.field]: action.payload.value,
-        },
-      };
-    case "BLUR":
-      return {
-        ...state,
-        blurred: { ...state.blurred, [action.payload.field]: true },
-      };
-    case "SUBMIT":
-      return {
-        ...state,
-        submitted: true,
-      };
-    case "VALIDATE":
-      return {
-        ...state,
-        errors: action.payload,
-      };
-    case "VALIDATE_FIELD":
-      return {
-        ...state,
-        errors: {
-          ...state.errors,
-          [action.payload.field]: action.payload.error,
-        },
-      };
-    case "ADD_FIELD":
-      return {
-        ...state,
-        values: {
-          ...state.values,
-          [action.payload.fieldName]: action.payload.initialValue,
-        },
-        errors: { ...state.errors, [action.payload.fieldName]: null },
-        blurred: { ...state.blurred, [action.payload.fieldName]: false },
-      };
-    case "REMOVE_FIELD": {
-      const newState = {
-        ...state,
-        values: { ...state.values },
-        errors: { ...state.errors },
-        blurred: { ...state.blurred },
-      };
+// function formReducer(state: FormState, action: Action): FormState {
+//   switch (action.type) {
+//     case "CHANGE":
+//       return {
+//         ...state,
+//         values: {
+//           ...state.values,
+//           [action.payload.field]: action.payload.value,
+//         },
+//       };
+//     case "BLUR":
+//       return {
+//         ...state,
+//         blurred: { ...state.blurred, [action.payload.field]: true },
+//       };
+//     case "SUBMIT":
+//       return {
+//         ...state,
+//         submitted: true,
+//       };
+//     case "VALIDATE":
+//       return {
+//         ...state,
+//         errors: action.payload,
+//       };
+//     case "VALIDATE_FIELD":
+//       return {
+//         ...state,
+//         errors: {
+//           ...state.errors,
+//           [action.payload.field]: action.payload.error,
+//         },
+//       };
+//     case "ADD_FIELD":
+//       return {
+//         ...state,
+//         values: {
+//           ...state.values,
+//           [action.payload.fieldName]: action.payload.initialValue,
+//         },
+//         errors: { ...state.errors, [action.payload.fieldName]: null },
+//         blurred: { ...state.blurred, [action.payload.fieldName]: false },
+//       };
+//     case "REMOVE_FIELD": {
+//       const newState = {
+//         ...state,
+//         values: { ...state.values },
+//         errors: { ...state.errors },
+//         blurred: { ...state.blurred },
+//       };
 
-      delete newState.values[action.payload.fieldName];
-      delete newState.errors[action.payload.fieldName];
-      delete newState.blurred[action.payload.fieldName];
+//       delete newState.values[action.payload.fieldName];
+//       delete newState.errors[action.payload.fieldName];
+//       delete newState.blurred[action.payload.fieldName];
 
-      return newState;
-    }
-    default:
-      throw new Error("Unknown action type");
-  }
-}
-export const useFormedible = ({
-  configs,
-  callbacks = {},
-}: UseValidationParams) => {
-  const {
-    onValidateStart = () => {},
-    onValidateSuccess = () => {},
-    onValidateError = () => {},
-  } = callbacks;
+//       return newState;
+//     }
+//     default:
+//       throw new Error("Unknown action type");
+//   }
+// }
+// export const useFormedible = ({
+//   configs,
+//   callbacks = {},
+// }: UseValidationParams) => {
+//   const {
+//     onValidateStart = () => {},
+//     onValidateSuccess = () => {},
+//     onValidateError = () => {},
+//     onFieldValidate = () => {},
+//   } = callbacks;
 
-  const initialState: FormState = {
-    values: Object.keys(configs).reduce(
-      (acc, key) => ({ ...acc, [key]: configs[key].initialValue || "" }),
-      {}
-    ),
-    errors: {},
-    blurred: {},
-    submitted: false,
-  };
+//   const initialState: FormState = {
+//     values: Object.keys(configs).reduce(
+//       (acc, key) => ({ ...acc, [key]: configs[key].initialValue || "" }),
+//       {}
+//     ),
+//     errors: {},
+//     blurred: {},
+//     submitted: false,
+//   };
 
-  const [state, dispatch] = useReducer(formReducer, initialState);
-  const validateAllFields = useCallback(() => {
-    onValidateStart?.();
+//   const [state, dispatch] = useReducer(formReducer, initialState);
 
-    const errors = validateFields(state.values, configs);
-    dispatch({ type: "VALIDATE", payload: errors });
+//   async function trigger(fields: string[] = []): Promise<boolean> {
+//     const fieldsToValidate = fields.length ? fields : Object.keys(configs);
+//     const currentErrors = { ...state.errors };
+//     let validationErrors = false;
+  
+//     for (const field of fieldsToValidate) {
+//       const config = configs[field];
+//       const value = state.values[field] ?? "";
+  
+//       if (!config) {
+//         console.error(`Config not found for field: ${field}`);
+//         continue;
+//       }
+  
+//       let error = await validateField(value.toString(), config, state.values);
+//       if (!error && config?.asyncValidate) {
+//         try {
+//           error = await config.asyncValidate(value, state.values);
+//         } catch (e) {
+//           console.error(`Async validation error for ${field}:`, e);
+//           error = "Async validation failed";
+//         }
+//       }
+  
+//       if (error) {
+//         currentErrors[field] = error;
+//         validationErrors = true;
+//       } else {
+//         delete currentErrors[field];
+//       }
+//     }
+  
+//     dispatch({ type: "VALIDATE", payload: currentErrors });
+//     return !validationErrors;
+//   }
+  
 
-    const hasErrors = Object.values(errors).some((error) => error !== null);
+//   async function validateSingleField(field: string) {
+//     onFieldValidate(field, true);
 
-    if (hasErrors) {
-      onValidateError?.(errors);
-    } else {
-      onValidateSuccess?.();
-    }
+//     const config = configs[field];
+//     let value = state.values[field];
+//     if (typeof value === "boolean") {
+//       value = value.toString();
+//     }
+//     let error = validateField(value, config, state.values);
 
-    return errors;
-  }, [
-    configs,
-    onValidateStart,
-    onValidateSuccess,
-    onValidateError,
-    state.values,
-  ]);
-  useEffect(() => {
-    if (state.submitted) {
-      onValidateStart?.();
+//     if (!error && config.asyncValidate && typeof value === "string") {
+//       try {
+//         error = await config.asyncValidate(value, state.values);
+//       } catch (e) {
+//         console.error(`Async validation error for ${field}:`, e);
+//         error = "Async validation failed";
+//       }
+//     }
 
-      const errors = validateFields(state.values, configs);
-      dispatch({ type: "VALIDATE", payload: errors });
+//     dispatch({
+//       type: "VALIDATE_FIELD",
+//       payload: { field, error },
+//     });
 
-      const hasErrors = Object.values(errors).some((error) => error !== null);
-      if (hasErrors) {
-        onValidateError?.(errors);
-      } else {
-        onValidateSuccess?.();
-      }
-    }
-  }, [state.values, configs, state.submitted, callbacks]);
+//     onFieldValidate(field, false);
+//   }
 
-  async function validateSingleField(field: string) {
-    const config = configs[field];
-    const value = state.values[field];
-    let error = validateField(value, config, state.values);
+//   const validateAllFields = useCallback(() => {
+//     onValidateStart?.();
 
-    if (!error && config.asyncValidate) {
-      error = await config.asyncValidate(value, state.values);
-    }
+//     const errors = validateFields(state.values, configs);
+//     dispatch({ type: "VALIDATE", payload: errors });
 
-    dispatch({
-      type: "VALIDATE_FIELD",
-      payload: { field, error },
-    });
-  }
+//     const hasErrors = Object.values(errors).some((error) => error !== null);
 
-  function addField(fieldConfig: NamedFieldConfig) {
-    if (fieldConfig.name !== undefined) {
-      configs[fieldConfig.name] = fieldConfig;
-    }
-    dispatch({
-      type: "ADD_FIELD",
-      payload: {
-        fieldName: fieldConfig.name || "",
-        initialValue: fieldConfig.initialValue || "",
-      },
-    });
-  }
+//     if (hasErrors) {
+//       onValidateError?.(errors);
+//     } else {
+//       onValidateSuccess?.();
+//     }
 
-  function removeField(fieldName: string) {
-    delete configs[fieldName];
-    dispatch({ type: "REMOVE_FIELD", payload: { fieldName } });
-  }
+//     return errors;
+//   }, [
+//     configs,
+//     onValidateStart,
+//     onValidateSuccess,
+//     onValidateError,
+//     onFieldValidate,
+//     state.values,
+//   ]);
 
-  return {
-    state,
-    dispatch,
-    validateSingleField,
-    addField,
-    removeField,
-    validateField,
-    validateAllFields,
-  };
-};
+//   useEffect(() => {
+//     if (state.submitted) {
+//       onValidateStart?.();
+
+//       const errors = validateFields(state.values, configs);
+//       dispatch({ type: "VALIDATE", payload: errors });
+
+//       const hasErrors = Object.values(errors).some((error) => error !== null);
+//       if (hasErrors) {
+//         onValidateError?.(errors);
+//       } else {
+//         onValidateSuccess?.();
+//       }
+//     }
+//   }, [ configs, state.submitted, callbacks]);
+
+//   function addField(fieldConfig: NamedFieldConfig) {
+//     if (fieldConfig.name !== undefined) {
+//       configs[fieldConfig.name] = fieldConfig;
+//     }
+//     dispatch({
+//       type: "ADD_FIELD",
+//       payload: {
+//         fieldName: fieldConfig.name || "",
+//         initialValue: fieldConfig.initialValue || "",
+//       },
+//     });
+//   }
+
+//   function removeField(fieldName: string) {
+//     delete configs[fieldName];
+//     dispatch({ type: "REMOVE_FIELD", payload: { fieldName } });
+//   }
+
+//   return {
+//     state,
+//     dispatch,
+//     validateSingleField,
+//     addField,
+//     removeField,
+//     validateAllFields,
+//     trigger,
+//     validateField,
+//     validateGroup,
+//   };
+// };

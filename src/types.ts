@@ -12,6 +12,7 @@ export interface FieldConfig {
   isDate?: boolean;
   isUrl?: boolean;
   isFile?: boolean;
+  isLogicValid?: (allValues: Record<string, any>) => boolean;
   // Messages for validations
   messages?: {
     isRequired?: string;
@@ -29,12 +30,12 @@ export interface FieldConfig {
 
   customValidate?: (
     value: string,
-    allValues: Record<string, string>
+    allValues: Record<string, string | boolean>
   ) => string | null;
 
   asyncValidate?: (
     value: string,
-    allValues: Record<string, string>
+    allValues: Record<string, string | boolean>
   ) => Promise<string | null>;
 
   //Confition Validation
@@ -44,7 +45,7 @@ export interface FieldConfig {
     | number
     | RegExp
     | [number, number]
-    | ((value: string, allValues: Record<string, string>) => boolean);
+    | ((value: string, allValues: Record<string, string | boolean>) => boolean);
   conditionMessage?: string;
 }
 
@@ -53,11 +54,13 @@ interface ValidationCallbacks {
   onValidateStart?: () => void;
   onValidateSuccess?: () => void;
   onValidateError?: (errors: Record<string, string | null>) => void;
+  onFieldValidate?: (fieldName: string, arg2: boolean) => void;
 }
 
 export interface UseValidationParams {
   configs: { [key: string]: FieldConfig };
   callbacks?: ValidationCallbacks; 
+  groups?: Record<string, FieldGroupConfig>; 
 }
 
 type FieldCondition =
@@ -73,6 +76,10 @@ export interface NamedFieldConfig extends FieldConfig {
   name: string;
 }
 
+export interface FieldGroupConfig {
+  fields: string[]; 
+  validate: (values: Record<string, any>) => string | null; 
+}
 export type ErrorType = {
   [key: string]: string | null;
 };
@@ -86,18 +93,17 @@ export interface FieldErrors {
 }
 
 export interface FormState {
-  values: FieldValues;
+  values: { [key: string]: string | boolean };
   errors: FieldErrors;
   blurred: { [key: string]: boolean };
   submitted: boolean;
 }
 
 export type Action =
-  | { type: "CHANGE"; payload: { field: string; value: string } }
+  | { type: "CHANGE"; payload: { field: string; value: string | boolean } }
   | { type: "BLUR"; payload: { field: string } }
   | { type: "SUBMIT" }
   | { type: "VALIDATE"; payload: FieldErrors }
   | { type: "VALIDATE_FIELD"; payload: { field: string; error: string | null } }
-  | { type: "ADD_FIELD"; payload: { fieldName: string; initialValue: string } }
+  | { type: "ADD_FIELD"; payload: { fieldName: string; initialValue: string | boolean } }
   | { type: "REMOVE_FIELD"; payload: { fieldName: string } };
-  

@@ -43,14 +43,16 @@ const schema = z
       path: ["dayOfBirth", "monthOfBirth", "yearOfBirth"],
     }
   );
-  
+
 type FormData = z.infer<typeof schema>;
+type FieldName = keyof FormData | `addresses.${number}` | `addresses.${number}.address1` | `addresses.${number}.address2` | `addresses.${number}.country` | `addresses.${number}.postCode`;
 
 export const OrderForm = () => {
   const {
     register,
     handleSubmit,
     control,
+    trigger,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -66,6 +68,10 @@ export const OrderForm = () => {
 
   const submitOrder: SubmitHandler<FormData> = (data) => {
     console.log("Data submitted", data);
+  };
+
+  const handleBlur = (fieldName: FieldName) => {
+    trigger(fieldName);
   };
 
   const currentYear = new Date().getFullYear();
@@ -86,6 +92,7 @@ export const OrderForm = () => {
           <div className="input-wrapper">
             <input
               {...register("name")}
+              onBlur={() => handleBlur("name")}
               placeholder="First"
               className={errors.name ? "error-input" : ""}
             />
@@ -94,6 +101,7 @@ export const OrderForm = () => {
             <input
               {...register("lastName")}
               placeholder="Last"
+              onBlur={() => handleBlur("lastName")}
               className={errors.lastName ? "error-input" : ""}
             />
           </div>
@@ -107,6 +115,7 @@ export const OrderForm = () => {
           type="email"
           {...register("email")}
           placeholder="example@example.com"
+          onBlur={() => handleBlur("email")}
           className={errors.email ? "error-input" : ""}
         />
         {errors.email && <span className="error">{errors.email.message}</span>}
@@ -118,6 +127,7 @@ export const OrderForm = () => {
           placeholder="Example: +372 2323213"
           type="tel"
           {...register("phoneNumber")}
+          onBlur={() => handleBlur("phoneNumber")}
         />
         {errors.phoneNumber && (
           <span className="error">{errors.phoneNumber.message}</span>
@@ -193,18 +203,22 @@ export const OrderForm = () => {
             <input
               placeholder="Address line 1"
               {...register(`addresses.${index}.address1`)}
+              onBlur={() => handleBlur(`addresses.${index}.address1` as FieldName)}
             />
             <input
               placeholder="Address line 2"
               {...register(`addresses.${index}.address2`)}
+              onBlur={() => handleBlur(`addresses.${index}.address2` as FieldName)}
             />
             <input
               placeholder="Country"
               {...register(`addresses.${index}.country`)}
+              onBlur={() => handleBlur(`addresses.${index}.country` as FieldName)}
             />
             <input
               placeholder="Postal Code"
               {...register(`addresses.${index}.postCode`)}
+              onBlur={() => handleBlur(`addresses.${index}.postCode` as FieldName)}
             />
             <button
               type="button"

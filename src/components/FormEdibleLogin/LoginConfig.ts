@@ -1,44 +1,31 @@
 import { FieldConfig} from "../../types";
 
+
 export const LoginFieldConfigs: { [key: string]: FieldConfig  } = {
   username: {
     isRequired: true,
     condition: "matches",
     conditionValue: /^[a-zA-Z0-9]+$/,
     conditionMessage: "Username must be alphanumeric",
+    customValidate: (value, allValues) =>
+value !== allValues.username
+  ? null
+  : "Password must differ from username",
   },
-
   password: {
     isRequired: true,
     isMinLength: 8,
-    isNotEqual: "username", // password must differ with username input
+    isNotEqual: "username",
     messages: {
       isRequired: "Password is required",
       isMinLength: "Password must be at least 8 characters long",
+      isEqualTo:"Password must differ with username"
     },
   },
   rememberPassword: {
-    
+    initialValue: "false",
   },
  
-};
-const LoginFieldConfigs: { [key: string]: FieldConfig  } = {
-  username: {
-    isRequired: false, // Меняем на false, так как email может быть альтернативой
-    // Остальные правила валидации...
-  },
-  email: {
-    isRequired: false, // Email также не является обязательным, если указано имя пользователя
-    isEmail: true,
-    messages: {
-      isEmail: "Неверный формат email",
-    },
-  },
-  password: {
-    isRequired: true,
-    // Остальные правила валидации...
-  },
-  // Остальные поля...
 };
 
 // age: {
@@ -77,14 +64,19 @@ const LoginFieldConfigs: { [key: string]: FieldConfig  } = {
 
 
 // групповое 
-const groups = {
-  loginInfo: {
-    fields: ['username', 'email'],
-    validate: (values) => {
-      if (!values.username && !values.email) {
-        return "Укажите имя пользователя или email";
-      }
-      return null;
-    }
-  }
-};
+// const groups = {
+//   loginInfo: {
+//     fields: ['username', 'email'],
+//     validate: (values) => {
+//       if (!values.username && !values.email) {
+//         return "Укажите имя пользователя или email";
+//       }
+//       return null;
+//     }
+//   }
+// };
+
+// customValidate: (value, allValues) =>
+// value !== allValues.username
+//   ? null
+//   : "Password must differ from username",

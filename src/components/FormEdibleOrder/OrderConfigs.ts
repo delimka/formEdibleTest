@@ -21,6 +21,7 @@ export const OrderConfigs: { [key: string]: FieldConfig } = {
   },
   address1_0: {
     isRequired: true,
+    
 
   },
   address2_0: {

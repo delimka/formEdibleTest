@@ -1,22 +1,22 @@
 import {  useState } from "react";
 import { OrderConfigs } from "./OrderConfigs"; 
-import { useFormedible } from "../../useFormedible";
+import { useFormedible } from "@delimka/formedible";
 
 export const OrderForm = () => {
   const [addressIds, setAddressIds] = useState([0]);
   const [addressCount, setAddressCount] = useState(1);
 
-
-  const { state, dispatch, validateSingleField, validateAllFields, addField, removeField} = useFormedible({
+  const { state, dispatch, trigger, addField, removeField} = useFormedible({
     configs: OrderConfigs, 
   });
-
 
   const handleChange = (
     e:
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLSelectElement>
   ) => {
+    e.stopPropagation();
+
     dispatch({
       type: "CHANGE",
       payload: { field: e.target.name, value: e.target.value },
@@ -25,34 +25,40 @@ export const OrderForm = () => {
 
   const handleBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     const field = e.target.name;
-    dispatch({ type: "BLUR", payload: { field } });
-    validateSingleField(field);
+    await trigger([field]);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const errors = validateAllFields();
+    const isValid = await trigger();
   
-    const hasErrors = Object.values(errors).some((error) => error !== null);
-    if (!hasErrors) {
-      // Сборка данных формы
+    if (isValid) {
+      // Создание массива адресовs
+      const addresses = addressIds.map(id => ({ 
+        address1: state.values[`address1_${id}`],
+        address2: state.values[`address2_${id}`],
+        country: state.values[`country_${id}`],
+        postCode: state.values[`postCode_${id}`],
+      }));
+  
+      const filteredValues = { ...state.values };
+      addressIds.forEach(id => {
+        delete filteredValues[`address1_${id}`];
+        delete filteredValues[`address2_${id}`];
+        delete filteredValues[`country_${id}`];
+        delete filteredValues[`postCode_${id}`];
+      });
+  
       const formData = {
-        ...state.values, // Основные данные формы
-        addresses: addressIds.map(id => ({ // Сбор данных адресов
-          address1: state.values[`address1_${id}`],
-          address2: state.values[`address2_${id}`],
-          country: state.values[`country_${id}`],
-          postCode: state.values[`postCode_${id}`],
-        }))
+        ...filteredValues,
+        addresses,
       };
   
       console.log("Form submitted:", formData);
-      // Здесь можете отправить formData куда нужно
     } else {
-      console.error("Form contains errors:", errors);
+      console.error("Form contains errors.");
     }
   };
-  
 
   const currentYear = new Date().getFullYear();
   const years = Array.from(
@@ -64,7 +70,6 @@ export const OrderForm = () => {
 
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
-  // Состояние для управления динамическими полями адресов
 
   const handleAddAddress = () => {
     const newId = addressCount;
@@ -76,8 +81,6 @@ export const OrderForm = () => {
       addField({
         name: `${field}_${newId}`,
         isRequired: true,
-        messages: { isRequired: "This field is required" },
-        initialValue: "",
       });
     });
   };

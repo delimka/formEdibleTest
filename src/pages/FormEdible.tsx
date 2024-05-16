@@ -23,7 +23,9 @@ const FormEdible = () => {
 
   const toggleForm = (newForm: string) => {
     setSearchParams({ category: newForm });
-    setValidationKey((prevKey) => prevKey + 1);
+    if (validationKey !== -1) {
+      setValidationKey((prevKey) => prevKey + 1);
+    }
   };
 
   // const getCurrentFormConfigs = () => {
