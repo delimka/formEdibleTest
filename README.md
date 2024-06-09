@@ -23,9 +23,6 @@ npm install
 - **Registration Form:** Showcases complex validation and field grouping capabilities.
 - **Order Form:** Demonstrates dynamic form fields and nested validations.
 
-## Using FormEdible
-
-FormEdible simplifies form creation, offering a straightforward way to integrate with Zod for schema validation and react-hook-form for form state management, improving developer experience and code maintainability.
 
 ## Direct Comparison
 
